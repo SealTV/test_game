@@ -4,6 +4,7 @@ using System.Collections;
 public class Room : MonoBehaviour {
     public Cell CellPrefab;
     public Wall WallPrefab;
+    public BallsBuffer BallsBuffer;
 
     public Player Player;
 
