@@ -1,23 +1,32 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 
 public class Ball : MonoBehaviour {
     public float Speed;
     public Vector3 Direction;
     public bool IsMove;
 
-    private Transform mTransform;
+    public Action<Ball> OnEndMove;
 
-    void Start()
-    {
-        mTransform = transform;
-    }
 
 	// Update is called once per frame
 	void Update () {
         if(IsMove)
         {
-            mTransform.position += Direction * Time.deltaTime;
+            transform.position += Direction * Time.deltaTime * Speed;
+
+            if((transform.position.x < -10 || transform.position.z < -10) && OnEndMove != null)
+                OnEndMove(this);
         }
 	}
+
+    public void OnTriggerEnter(Collider other)
+    {
+        OnEndMove(this);
+    }
+
+    public void OnGameEnd()
+    {
+        OnEndMove(this);
+    }
 }

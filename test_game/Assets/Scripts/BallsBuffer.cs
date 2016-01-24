@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class BallsBuffer : MonoBehaviour {
 
     public Ball PallPrefab;
     private Queue<Ball> ballsQeue;
+    private Action OnEndGame;
 
     void Awake()
     {
@@ -17,15 +19,24 @@ public class BallsBuffer : MonoBehaviour {
             return ballsQeue.Dequeue();
 
         Ball ball = Instantiate(PallPrefab);
+        ball.OnEndMove += Enqueue;
+        OnEndGame += ball.OnGameEnd;
         return ball;
     }
 
-    public void Enqueue(Ball ball)
+    private void Enqueue(Ball ball)
     {
+        ball.IsMove = false;
         ball.transform.parent = this.transform;
         ball.gameObject.SetActive(false);
 
         ballsQeue.Enqueue(ball);
+    }
+
+    public void OnGameEnd(bool result)
+    {
+        if(OnEndGame != null)
+            OnEndGame();
     }
 
 }

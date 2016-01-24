@@ -1,34 +1,67 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
+using Assets.Scripts.Enums;
 
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     public float Speed;
 
-    [HideInInspector]
-    public Vector3 Target;
 
     [HideInInspector]
     public bool IsMove;
-
-    [HideInInspector]
-    public CellType CellType;
-
     public Action<CellType> OnPosition;
-	
-	// Update is called once per frame
-	void Update () {
+    public Action OnBallTrigger;
+
+    private int currentStep;
+    private Assets.Scripts.Data.Cell[] route;
+
+    private Vector3 target;
+
+    public bool IsAlive;
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(!IsAlive)
+            return;
+
         if(IsMove)
         {
-            transform.position = Vector3.MoveTowards(transform.position, Target, Speed * Time.deltaTime);
-            if(transform.position == Target)
+            target = new Vector3(route[currentStep].I, transform.position.y, route[currentStep].J);
+
+            transform.position = Vector3.MoveTowards(transform.position, target, Speed * Time.deltaTime);
+            if(transform.position == target)
             {
-                IsMove = false;
-                if(OnPosition != null)
-                    OnPosition(this.CellType);
+                if(currentStep == route.Length - 1)
+                {
+                    IsMove = false;
+                    if(OnPosition != null)
+                        OnPosition(route[currentStep].Type);
+                }
+                else
+                {
+                    currentStep++;
+                }
             }
         }
-	}
+    }
 
+    internal void Move(Assets.Scripts.Data.Cell[] route, int step = 0)
+    {
+        IsMove = true;
+        this.route = route;
+        currentStep = 0;
+    }
 
+    public void OnTriggerEnter(Collider other)
+    {
+        if(!IsAlive)
+            return;
+
+        IsAlive = false;
+        IsMove = false;
+
+        if(OnBallTrigger != null)
+            OnBallTrigger();
+    }
 }

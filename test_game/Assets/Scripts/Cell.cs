@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
+using Assets.Scripts.Enums;
 
 public class Cell : MonoBehaviour
 {
     public Color DefaultColor;
     public Color OnEnterColor;
+    public Color StartColor;
     public Color FinishColor;
 
-
-    public CellType CellType;
+    public Assets.Scripts.Data.Cell CellData = new Assets.Scripts.Data.Cell();
 
     public Action<Cell> OnClick;
 
@@ -18,7 +18,7 @@ public class Cell : MonoBehaviour
     void Start()
     {
         material = GetComponent<Renderer>().material;
-        material.color = this.CellType == CellType.Finish ? FinishColor : DefaultColor;
+        SetColor();
     }
 
     public void OnMouseEnter()
@@ -28,7 +28,7 @@ public class Cell : MonoBehaviour
 
     public void OnMouseExit()
     {
-        material.color = this.CellType == CellType.Finish ? FinishColor : DefaultColor;
+        SetColor();
     }
 
     public void OnMouseUpAsButton()
@@ -36,12 +36,28 @@ public class Cell : MonoBehaviour
         if(OnClick != null)
             OnClick(this);
     }
+
+    private void SetColor()
+    {
+        switch(CellData.Type)
+        {
+            case CellType.Default:
+                material.color = DefaultColor;
+                break;
+            case CellType.Start:
+                material.color = StartColor;
+                break;
+            case CellType.Finish:
+                material.color = FinishColor;
+                break;
+        }
+    }
+
+    public void OnGameEnd(bool result)
+    {
+        var collder = this.GetComponent<BoxCollider>();
+        collder.enabled = false;
+    }
 }
 
 
-public enum CellType
-{
-    Default,
-    Target,
-    Finish,
-}
